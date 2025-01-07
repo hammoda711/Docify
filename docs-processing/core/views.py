@@ -3,12 +3,11 @@ from rest_framework.generics import ListAPIView, RetrieveDestroyAPIView
 from .models import UploadedImage, UploadedPDF
 from .serializers import UploadedImageSerializer, UploadedPDFSerializer
 from .utils import api_response
-from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveDestroyAPIView
 from .models import UploadedImage, UploadedPDF
-from .serializers import UploadedImageSerializer, UploadedPDFSerializer
-from .utils import api_response
-
+import os
+from django.shortcuts import get_object_or_404
+from PIL import Image
+from .utils import convert_pdf_to_images
 class UploadFileView(APIView):
 
     def post(self, request):
@@ -52,16 +51,6 @@ class PDFDetailView(RetrieveDestroyAPIView):
     serializer_class = UploadedPDFSerializer
 
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.shortcuts import get_object_or_404
-from PIL import Image
-from io import BytesIO
-from django.core.files.base import ContentFile
-from .models import UploadedImage
-from .serializers import UploadedImageSerializer
-from .utils import api_response
 
 class RotateImageView(APIView):
     def post(self, request):
@@ -97,3 +86,27 @@ class RotateImageView(APIView):
             )
         except Exception as e:
             return api_response(1, f"Error rotating image: {str(e)}", status_code=500)
+
+
+
+class ConvertPDFToImageView(APIView):
+    def post(self, request):
+        pdf_id = request.data.get('pdf_id')
+        
+        if not pdf_id:
+            return api_response(1, 'PDF ID is required', status_code=400)
+
+        try:
+            # Get the PDF object from the database
+            uploaded_pdf = UploadedPDF.objects.get(id=pdf_id)
+        except UploadedPDF.DoesNotExist:
+            return api_response(1, 'PDF not found', status_code=404)
+
+        # Define the output folder where the images will be saved
+        output_folder = os.path.join('media', 'converted_pdfs', f'converted_images_{pdf_id}')
+
+        # Convert the PDF to images and get the list of saved image files
+        image_files = convert_pdf_to_images(uploaded_pdf.file.path, output_folder)
+
+        # Respond with the list of image file paths
+        return api_response(0, 'PDF converted to images successfully', data={'image_files': image_files}, status_code=200)
