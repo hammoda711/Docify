@@ -2,10 +2,9 @@ from rest_framework import serializers
 from .models import UploadedImage, UploadedPDF
 from drf_extra_fields.fields import Base64ImageField, Base64FileField
 from .validators import PDFBase64File, validate_file_name_length, validate_pdf_extension, validate_image_extension
-import logging
+from PyPDF2 import PdfReader
+from io import BytesIO
 from PIL import Image
-logger = logging.getLogger(__name__)
-
 class UploadedImageSerializer(serializers.ModelSerializer):
     file = Base64ImageField(validators=[validate_file_name_length, validate_image_extension])
 
@@ -30,10 +29,28 @@ class UploadedImageSerializer(serializers.ModelSerializer):
 
 
 class UploadedPDFSerializer(serializers.ModelSerializer):
-    file = PDFBase64File()
+    file = PDFBase64File(validators=[validate_file_name_length, validate_pdf_extension])
+    pages = serializers.IntegerField(required=False)
 
     class Meta:
         model = UploadedPDF
         fields = ['id', 'file', 'pages', 'uploaded_at']
+
+    def create(self, validated_data):
+        # Save the file and extract the number of pages
+        file = validated_data.get('file')
+        pdf_file = file.read()
+
+        # Extract the number of pages from the PDF
+        pdf_reader = PdfReader(BytesIO(pdf_file))
+        pages = len(pdf_reader.pages)
+
+        # Create the UploadedPDF instance with extracted pages count
+        uploaded_pdf = UploadedPDF.objects.create(
+            file=file,
+            pages=pages,
+            uploaded_at=validated_data.get('uploaded_at')
+        )
+        return uploaded_pdf
 
 

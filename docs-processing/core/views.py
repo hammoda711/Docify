@@ -33,3 +33,11 @@ class UploadFileView(APIView):
         # Return 422 Unprocessable Entity for validation errors
         return api_response(1, "Validation error", serializer.errors, status_code=422)
 
+
+class ImageListView(ListAPIView):
+    queryset = UploadedImage.objects.all()
+    serializer_class = UploadedImageSerializer
+
+class PDFListView(ListAPIView):
+    queryset = UploadedPDF.objects.all()
+    serializer_class = UploadedPDFSerializer
