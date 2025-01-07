@@ -41,3 +41,12 @@ class ImageListView(ListAPIView):
 class PDFListView(ListAPIView):
     queryset = UploadedPDF.objects.all()
     serializer_class = UploadedPDFSerializer
+
+
+class ImageDetailView(RetrieveDestroyAPIView):
+    queryset = UploadedImage.objects.all()
+    serializer_class = UploadedImageSerializer
+
+class PDFDetailView(RetrieveDestroyAPIView):
+    queryset = UploadedPDF.objects.all()
+    serializer_class = UploadedPDFSerializer
