@@ -32,7 +32,6 @@ class UploadFileView(APIView):
         # Return 422 Unprocessable Entity for validation errors
         return api_response(1, "Validation error", serializer.errors, status_code=422)
 
-
 class ImageListView(ListAPIView):
     queryset = UploadedImage.objects.all()
     serializer_class = UploadedImageSerializer
@@ -41,7 +40,6 @@ class PDFListView(ListAPIView):
     queryset = UploadedPDF.objects.all()
     serializer_class = UploadedPDFSerializer
 
-
 class ImageDetailView(RetrieveDestroyAPIView):
     queryset = UploadedImage.objects.all()
     serializer_class = UploadedImageSerializer
@@ -49,8 +47,6 @@ class ImageDetailView(RetrieveDestroyAPIView):
 class PDFDetailView(RetrieveDestroyAPIView):
     queryset = UploadedPDF.objects.all()
     serializer_class = UploadedPDFSerializer
-
-
 
 class RotateImageView(APIView):
     def post(self, request):
@@ -86,8 +82,6 @@ class RotateImageView(APIView):
             )
         except Exception as e:
             return api_response(1, f"Error rotating image: {str(e)}", status_code=500)
-
-
 
 class ConvertPDFToImageView(APIView):
     def post(self, request):

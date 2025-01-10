@@ -10,23 +10,33 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
+import environ
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Initialize environment variables
+env = environ.Env()
 
+# Set the base directory to the project directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Build the relative path to the .env file in the root project directory
+env_file = os.path.join(BASE_DIR, '.env')
+
+# Ensure the .env file exists and read it
+if os.path.exists(env_file):
+    env.read_env(env_file)
+else:
+    raise FileNotFoundError(f"Environment file {env_file} not found!")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^!@ypal_9(@-zahqme@9tv14_%-*=3-m+#wt*!g6v2*=8swy*p'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=True)
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
 
 # Application definition
 
@@ -78,11 +88,14 @@ WSGI_APPLICATION = 'docify.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'docs_db'),
+        'USER': os.getenv('DB_USER', 'docs_db'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'docs_db'),
+        'HOST': os.getenv('DB_HOST', 'postgres_db'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
