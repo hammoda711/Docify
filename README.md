@@ -328,3 +328,23 @@ To deploy the project, ensure that the application is Dockerized, and follow the
 ## **7. Postman collection**
 
 For more detailed information on how to interact with the API, please refer to the **Postman collection**, you will find a full appraoch to interact with the project.
+
+## Note:
+You will need to create your own `.env` file, here is an exaple of `.env` :
+
+```.md
+# .env.example
+
+# Django settings
+SECRET_KEY="your-django-secret-key"
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Database configuration
+DB_NAME=your_db_name
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_HOST=your_postgres_db_host
+DB_PORT=5432
+
+```
